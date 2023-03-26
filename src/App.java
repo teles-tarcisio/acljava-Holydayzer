@@ -6,32 +6,44 @@ import java.util.List;
 
 public class App {
 
-  public static List<Holiday> generateHolidaysList(String filePath) {
-    //List<String> holidaysList = new ArrayList<>();
-    List<Holiday> holidaysList = new ArrayList<>();
+  public static List<String> fileToStringsList(String filePath) {
+    List<String> stringsList = new ArrayList<>();
     try {
       File myTextFile = new File(filePath);
       Scanner myReader = new Scanner(myTextFile);
       while (myReader.hasNextLine()) {
         String data = myReader.nextLine().replace("\"", "");
-        String[] splittedLine = data.split(" => ");
-        holidaysList.add(new Holiday(splittedLine[0], splittedLine[1]));
+        data = data.replace(" => ", ":");
+        stringsList.add(data);
       }
       myReader.close();
     } catch (FileNotFoundException e) {
       System.out.println("Error when reading from file!");
       e.printStackTrace();
     }
+    return stringsList;
+  }
+
+  public static List<Holiday> createHolidaysCollection(List<String> targetList) {
+    List<Holiday> holidaysList = new ArrayList<>();
+    
+    for (String listItem : targetList) {
+      String[] splittedString = listItem.split(":");
+      holidaysList.add(new Holiday(splittedString[0], splittedString[1]));
+    }
+
     return holidaysList;
   }
   
   public static void main(String[] args) {
-    List<Holiday> myHolidaysList = new ArrayList<>();
     String targetFilePath = "lista_feriados.txt";
-    myHolidaysList = generateHolidaysList(targetFilePath);
+    List<String> holidaysStringList = fileToStringsList(targetFilePath);
     
-    for (Holiday item : myHolidaysList) {
-      System.out.println(item.getDate() + " : " + item.getDescription());      
-    }
+    HolidaysCollection myHolidays = new HolidaysCollection(createHolidaysCollection(holidaysStringList));
+
+    myHolidays.getAllHolidays();
+    myHolidays.getHolidayByDate("12/10/2023");
+    myHolidays.getHolidayByDate("05/11/2023");
+    
   }
 }
